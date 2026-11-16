@@ -109,6 +109,8 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sc{color:var(--mu);white-space:nowrap}
 .sc b{color:var(--tx)}
+#win .row{max-width:320px;margin:18px auto 0}
+#wwait{margin-top:14px}
 #wr{margin:14px auto 0;max-width:320px;text-align:left;background:var(--pn);border:1px solid var(--ln);border-radius:12px;padding:6px 0}
 @media(max-width:620px){#lb{top:96px;width:190px}}
 #win{display:none;position:absolute;inset:0;background:rgba(10,16,22,.8);align-items:center;justify-content:center;text-align:center}
@@ -168,7 +170,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
   <div id="orig"><img id="origimg" alt="Orijinal görsel"></div>
   <div id="lb"><div id="lbhd"><span>Sıralama</span><b id="lbt"></b></div><div id="lbl"></div></div>
   <div id="zoom"><button id="zi">+</button><button id="zo">−</button><button id="zf">⌂</button></div>
-  <div id="win"><div><h1>Puzzle tamamlandı!</h1><p id="wt"></p><div id="wr"></div></div></div>
+  <div id="win"><div><h1>Puzzle tamamlandı!</h1><p id="wt"></p><div id="wr"></div><div class="row"><button id="wview" class="alt">Tahtaya bak</button><button id="wnew">Yeni puzzle</button></div><p id="wwait">Lider yeni puzzle başlatınca lobiye döneceksin.</p></div></div>
 </section>
 
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="wrap"><div class="card">
@@ -302,7 +304,8 @@ $('#go').onclick=()=>{
   lastStart={t:'start',img:pendingImg,n:+$('#cnt').value,seed:Math.floor(Math.random()*1e9),t0:Date.now()};
   send({...lastStart});startGame(lastStart);
 };
-$('#again').onclick=()=>{lastStart=null;send({t:'lobby'});backToLobby()};
+$('#again').onclick=$('#wnew').onclick=()=>{lastStart=null;send({t:'lobby'});backToLobby()};
+$('#wview').onclick=()=>$('#win').classList.remove('on');
 function backToLobby(){ready=false;$('#win').classList.remove('on');enterLobby()}
 
 /* ---------- puzzle build ---------- */
@@ -424,6 +427,7 @@ if(innerWidth<620)$('#lb').classList.add('min');
 function checkWin(){
   if(order.length===1&&ready){
     fillRows($('#wr'),computeRows().rows);
+    $('#wnew').style.display=isHost?'':'none';$('#wwait').style.display=isHost?'none':'';
     const s=Math.round((Date.now()-t0)/1000);$('#wt').textContent=`${N} parça · ${Math.floor(s/60)} dk ${s%60} sn`;$('#win').classList.add('on');
   }
 }
