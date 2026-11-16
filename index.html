@@ -169,7 +169,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
     <span id="prog"></span>
     <button id="inv" class="alt hb" title="Davet linkini kopyala" aria-label="Davet linkini kopyala"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
     <button id="kick" class="alt hb" title="Oyuncuları yönet" aria-label="Oyuncuları yönet" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M17 8l5 5"/><path d="M22 8l-5 5"/></svg></button>
-    <button id="shuf" class="alt hb" title="Parçaları tekrar karıştır" aria-label="Parçaları tekrar karıştır" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg></button>
+    <button id="shuf" class="alt hb" title="Yerine konmamış parçaları karıştır" aria-label="Yerine konmamış parçaları karıştır" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg></button>
     <button id="again" class="alt" style="display:none">Yeni puzzle</button>
   </div>
   <div id="chat"><div id="msgs"></div><input id="cin" maxlength="200" placeholder="Mesaj yaz, Enter ile gönder" autocomplete="off"></div>
@@ -373,6 +373,20 @@ async function startGame(msg){
 }
 
 /* ---------- game logic ---------- */
+function reshuffle(seed){
+  const r=mulberry(seed^0x5bd1e995);holders={};
+  const ids=Object.keys(G).map(Number).sort((a,b)=>a-b).filter(g=>!isLocked(G[g]));
+  for(const gid of ids){
+    const A=G[gid];let minc=1e9,maxc=-1,minr=1e9,maxr=-1;
+    for(const id of A.m){const p=P[id];minc=Math.min(minc,p.c);maxc=Math.max(maxc,p.c);minr=Math.min(minr,p.r);maxr=Math.max(maxr,p.r)}
+    const gw=(maxc-minc+1)*cw,gh=(maxr-minr+1)*ch;let x,y,k=0;
+    do{x=(r()*2.4-.7)*W;y=(r()*2.4-.7)*H;k++}while(k<40&&x+gw/2>-cw*.5&&x-gw/2<W+cw*.5&&y+gh/2>-ch*.5&&y-gh/2<H+ch*.5);
+    A.x=x-gw/2-minc*cw;A.y=y-gh/2-minr*ch;
+  }
+  const locked=order.filter(g=>G[g]&&isLocked(G[g])),rest=ids.slice();
+  for(let i=rest.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]]}
+  order=[...locked,...rest];
+}
 function scatter(seed){
   const r2=mulberry(seed^0x9e3779b9);
   G={};order=[];holders={};
@@ -414,7 +428,7 @@ function gameMsg(msg){
   else if(msg.t==='drop'){
     const A=G[g];if(!A)return;A.x=msg.x;A.y=msg.y;(msg.m||[]).forEach(q=>absorb(g,q));delete holders[g];afterDrop(g);credit(g,msg.from);checkWin();
   }else if(msg.t==='shuffle'){
-    drag=null;pan=null;for(const k in flash)delete flash[k];scatter(msg.seed);t0=msg.t0;$('#win').classList.remove('on');
+    drag=null;pan=null;reshuffle(msg.seed);
   }else if(msg.t==='cur'){
     const c=cursors[msg.from];if(c){c.x=msg.x;c.y=msg.y;c.at=performance.now()}else cursors[msg.from]={x:msg.x,y:msg.y,dx:msg.x,dy:msg.y,at:performance.now()};
   }
@@ -552,10 +566,9 @@ $('#inv').onclick=()=>{
 };
 $('#shuf').onclick=async()=>{
   if(!isHost||!ready)return;
-  if(!await ask({title:'Parçalar karıştırılsın mı?',text:'Tüm parçalar ayrılıp yeniden dağılacak, ilerleme sıfırlanacak.',ok:'Karıştır',cancel:'Vazgeç'}))return;
+  if(!await ask({title:'Boştaki parçalar karıştırılsın mı?',text:'Yerine konmamış parçalar yeniden dağılacak. Yerine oturmuş parçalar olduğu yerde kalacak.',ok:'Karıştır',cancel:'Vazgeç'}))return;
   if(!ready)return;
-  const msg={t:'shuffle',seed:Math.floor(Math.random()*1e9),t0:Date.now()};
-  if(lastStart)lastStart.t0=msg.t0;
+  const msg={t:'shuffle',seed:Math.floor(Math.random()*1e9)};
   send(msg);gameMsg(msg);
 };
 
