@@ -89,11 +89,11 @@ button:disabled{opacity:.4;cursor:not-allowed}
 #hcode{cursor:pointer;user-select:none;gap:8px}
 #hcode svg{opacity:.7}
 #hcode:hover svg{opacity:1}
-#modal{display:none;position:fixed;inset:0;z-index:50;background:rgba(8,13,19,.72);align-items:center;justify-content:center;padding:20px}
-#modal.on{display:flex}
-#modal .wrap{margin:0 0 70px;width:100%;max-width:400px}
-#modal .card{padding:26px 28px}
-#mt{font:700 24px Fredoka,system-ui,sans-serif;margin:0 0 6px;color:var(--tx)}
+#modal,#kmodal{display:none;position:fixed;inset:0;z-index:50;background:rgba(8,13,19,.72);align-items:center;justify-content:center;padding:20px}
+#modal.on,#kmodal.on{display:flex}
+#modal .wrap,#kmodal .wrap{margin:0 0 70px;width:100%;max-width:400px}
+#modal .card,#kmodal .card{padding:26px 28px}
+#mt,#kt{font:700 24px Fredoka,system-ui,sans-serif;margin:0 0 6px;color:var(--tx)}
 #mp{margin:0 0 20px}
 #lb{position:absolute;top:58px;right:12px;width:230px;background:rgba(33,47,61,.88);border:1px solid var(--ln);border-radius:12px;overflow:hidden;backdrop-filter:blur(4px)}
 #lbhd{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font:500 15px Fredoka,system-ui,sans-serif;cursor:pointer;border-bottom:1px solid var(--ln);user-select:none}
@@ -113,6 +113,11 @@ button:disabled{opacity:.4;cursor:not-allowed}
 #wwait{margin-top:14px}
 #wr{margin:14px auto 0;max-width:320px;text-align:left;background:var(--pn);border:1px solid var(--ln);border-radius:12px;padding:6px 0}
 @media(max-width:620px){#lb{top:96px;width:190px}}
+#kl{margin:10px 0 18px}
+#kl .lr{padding:8px 4px;font-size:15px;border-bottom:1px solid var(--ln)}
+#kl .lr:last-child{border-bottom:0}
+#kl p{margin:4px 0}
+.kb{padding:5px 14px;font-size:14px;background:#ff6b6b;color:#2a0909;box-shadow:none}
 #win{display:none;position:absolute;inset:0;background:rgba(10,16,22,.8);align-items:center;justify-content:center;text-align:center}
 #win.on{display:flex}
 #win h1{color:var(--ok);font-size:52px}
@@ -163,6 +168,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
     <button id="orgbtn" class="alt" title="Orijinal görsel" aria-label="Orijinal görseli göster" style="padding:6px 10px;line-height:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5.5 4.5 12 4.5 22.5 12 22.5 12 18.5 19.5 12 19.5 1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3.2"/></svg></button>
     <span id="prog"></span>
     <button id="inv" class="alt hb" title="Davet linkini kopyala" aria-label="Davet linkini kopyala"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+    <button id="kick" class="alt hb" title="Oyuncuları yönet" aria-label="Oyuncuları yönet" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M17 8l5 5"/><path d="M22 8l-5 5"/></svg></button>
     <button id="shuf" class="alt hb" title="Parçaları tekrar karıştır" aria-label="Parçaları tekrar karıştır" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg></button>
     <button id="again" class="alt" style="display:none">Yeni puzzle</button>
   </div>
@@ -172,6 +178,11 @@ button:disabled{opacity:.4;cursor:not-allowed}
   <div id="zoom"><button id="zi">+</button><button id="zo">−</button><button id="zf">⌂</button></div>
   <div id="win"><div><h1>Puzzle tamamlandı!</h1><p id="wt"></p><div id="wr"></div><div class="row"><button id="wview" class="alt">Tahtaya bak</button><button id="wnew">Yeni puzzle</button></div><p id="wwait">Lider yeni puzzle başlatınca lobiye döneceksin.</p></div></div>
 </section>
+
+<div id="kmodal" role="dialog" aria-modal="true" aria-labelledby="kt"><div class="wrap"><div class="card">
+  <div id="kt">Oyuncuları yönet</div><div id="kl"></div>
+  <div class="row"><button id="kclose" class="alt">Kapat</button></div>
+</div></div></div>
 
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="wrap"><div class="card">
   <div id="mt"></div><p id="mp"></p>
@@ -231,13 +242,14 @@ function joinRoom(c){
     me.id=id;hostConn=peer.connect('pzl-'+c,{reliable:true});
     hostConn.on('open',()=>{clearTimeout(to);err('');hostConn.send({t:'hello',name:me.name});enterLobby()});
     hostConn.on('data',recv);
-    hostConn.on('close',()=>{ask({title:'Lobi kapandı',text:'Lobi lideri oyundan ayrıldı.',ok:'Ana ekrana dön',cancel:false}).then(()=>location.reload())});
+    hostConn.on('close',()=>{if(kicked)return;ask({title:'Lobi kapandı',text:'Lobi lideri oyundan ayrıldı.',ok:'Ana ekrana dön',cancel:false}).then(()=>location.reload())});
   });
   peer.on('error',e=>{clearTimeout(to);err(e.type==='peer-unavailable'?'Lobi bulunamadı.':'Bağlantı hatası: '+e.type)});
 }
 function onConn(conn){
   conns.push(conn);
   conn.on('data',msg=>{
+    if(!conns.includes(conn))return;
     if(msg.t==='hello'){
       players[conn.peer]={name:String(msg.name||'Oyuncu').slice(0,16),color:COLORS[nextColor++%COLORS.length]};
       bcast({t:'players',p:players});
@@ -248,11 +260,19 @@ function onConn(conn){
     conns.forEach(c=>c!==conn&&c.open&&c.send(msg));
     recv(msg);
   });
-  conn.on('close',()=>{
-    conns=conns.filter(c=>c!==conn);delete players[conn.peer];delete cursors[conn.peer];
-    for(const g in holders)if(holders[g]===conn.peer)delete holders[g];
-    bcast({t:'players',p:players});renderPlayers();
-  });
+  conn.on('close',()=>dropConn(conn));
+}
+function dropConn(conn){
+  if(!conns.includes(conn))return;
+  conns=conns.filter(c=>c!==conn);delete players[conn.peer];delete cursors[conn.peer];
+  for(const g in holders)if(holders[g]===conn.peer)delete holders[g];
+  bcast({t:'players',p:players});renderPlayers();
+}
+function kickPlayer(id){
+  const c=conns.find(c=>c.peer===id);if(!c)return;
+  try{c.send({t:'kicked'})}catch(e){}
+  setTimeout(()=>{try{c.close()}catch(e){}dropConn(c)},150);
+  dropConn(c);
 }
 function bcast(msg){conns.forEach(c=>c.open&&c.send(msg));if(msg.t==='players')renderPlayers()}
 function send(msg){
@@ -260,7 +280,13 @@ function send(msg){
   if(isHost)conns.forEach(c=>c.open&&c.send(msg));
   else if(hostConn&&hostConn.open)hostConn.send(msg);
 }
+let kicked=false;
 function recv(msg){
+  if(msg.t==='kicked'){
+    kicked=true;
+    ask({title:'Lobiden çıkarıldın',text:'Lobi lideri seni oyundan çıkardı.',ok:'Ana ekrana dön',cancel:false}).then(()=>location.reload());
+    return;
+  }
   if(msg.t==='players'){players=msg.p;renderPlayers();return}
   if(msg.t==='start'){startGame(msg);return}
   if(msg.t==='lobby'){backToLobby();return}
@@ -283,6 +309,7 @@ function enterLobby(){
   renderPlayers();
 }
 function renderPlayers(){
+  if($('#kmodal').classList.contains('on'))renderKick();
   for(const id in players)known[id]=players[id];
   const box=$('#plist');box.textContent='';Object.values(players).forEach(p=>box.appendChild(chip(p)));
 }
@@ -327,7 +354,7 @@ function pieceCanvas(r,c,hs,vs){
 }
 async function startGame(msg){
   ready=false;queue=[];holders={};cursors={};show('game');
-  renderCode();$('#again').style.display=isHost?'inline-block':'none';$('#shuf').style.display=isHost?'inline-block':'none';$('#win').classList.remove('on');
+  renderCode();$('#again').style.display=isHost?'inline-block':'none';$('#shuf').style.display=isHost?'inline-block':'none';$('#kick').style.display=isHost?'inline-block':'none';$('#win').classList.remove('on');
   img=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.src=msg.img});
   N=msg.n;t0=msg.t0;W=img.width;H=img.height;
   [cols,rows]=grid(W,H,N);cw=W/cols;ch=H/rows;m=Math.min(cw,ch);pad=Math.ceil(m*.26);
@@ -421,6 +448,23 @@ function renderLB(now){
   $('#lbt').textContent='%'+fmtP(tot/(P.length||1)*100);
   fillRows($('#lbl'),rows);
 }
+function renderKick(){
+  const box=$('#kl');box.textContent='';
+  const ids=Object.keys(players).filter(id=>id!==me.id);
+  if(!ids.length){const p=document.createElement('p');p.textContent='Lobide başka oyuncu yok.';box.appendChild(p);return}
+  ids.forEach(id=>{
+    const pl=players[id],d=document.createElement('div');d.className='lr';
+    const dot=document.createElement('i');dot.style.background=pl.color;
+    const nm=document.createElement('span');nm.className='nm';nm.textContent=pl.name;
+    const b=document.createElement('button');b.className='kb';b.textContent='At';
+    b.onclick=async()=>{
+      if(await ask({title:pl.name+' atılsın mı?',text:'Oyuncu lobiden çıkarılacak. Kodu bilen tekrar katılabilir.',ok:'At',cancel:'Vazgeç'})){kickPlayer(id);renderKick()}
+    };
+    d.append(dot,nm,b);box.appendChild(d);
+  });
+}
+$('#kick').onclick=()=>{renderKick();$('#kmodal').classList.add('on')};
+$('#kclose').onclick=()=>$('#kmodal').classList.remove('on');
 $('#lbhd').onclick=()=>$('#lb').classList.toggle('min');
 if(innerWidth<620)$('#lb').classList.add('min');
 
