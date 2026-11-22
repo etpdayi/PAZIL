@@ -62,7 +62,17 @@ button.alt{background:transparent;color:var(--tx);border:1px solid var(--ln)}
 button:disabled{opacity:.4;cursor:not-allowed}
 .row{display:flex;gap:10px;margin-top:10px}
 .row>*{flex:1}
-#err{color:#ff8a8a;min-height:22px;margin-top:10px}
+#err{margin-top:14px}
+#err:empty{margin:0}
+.nt{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-radius:12px;font-size:14px;line-height:1.45;border:1px solid;animation:ntin .22s ease-out}
+.nt-info{background:rgba(255,200,87,.1);border-color:rgba(255,200,87,.35);color:#ffe3a3}
+.nt-ok{background:rgba(77,212,172,.1);border-color:rgba(77,212,172,.35);color:#a4efd9}
+.nt-bad{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.4);color:#ffb8b8}
+.ni{flex:none;width:20px;height:21px;display:flex;align-items:center;justify-content:center}
+.spin{width:16px;height:16px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes ntin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.spin,.nt{animation:none}}
 .chip{display:inline-flex;align-items:center;gap:7px;padding:4px 11px;border-radius:99px;background:var(--bg);border:1px solid var(--ln);margin:3px 4px 3px 0;font-size:14px}
 .chip:before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c,#888)}
 #code{display:flex;gap:8px;margin:6px 0 4px}
@@ -77,7 +87,13 @@ button:disabled{opacity:.4;cursor:not-allowed}
 #prog{color:var(--mu);font-size:14px;background:var(--pn);padding:5px 11px;border-radius:99px}
 #zoom{position:absolute;right:12px;bottom:max(12px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px}
 #zoom button{width:42px;padding:8px 0;background:var(--pn);color:var(--tx);border:1px solid var(--ln)}
-#chat{position:absolute;left:12px;bottom:max(12px,env(safe-area-inset-bottom));width:min(300px,calc(100vw - 90px));display:flex;flex-direction:column;background:rgba(33,47,61,.88);border:1px solid var(--ln);border-radius:12px;overflow:hidden}
+#chat{position:absolute;left:12px;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 56px);width:min(300px,calc(100vw - 90px));display:none;flex-direction:column;background:rgba(33,47,61,.88);border:1px solid var(--ln);border-radius:12px;overflow:hidden}
+#chat.open{display:flex}
+#chbtn{position:absolute;left:12px;bottom:max(12px,env(safe-area-inset-bottom));width:46px;height:46px;padding:0;line-height:0;display:flex;align-items:center;justify-content:center;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;box-shadow:none}
+#chbtn.on{border-color:var(--ac);color:var(--ac)}
+#chb{display:none;position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#ff6b6b;color:#2a0909;font:700 12px/20px Fredoka,system-ui,sans-serif;text-align:center}
+#chh{display:flex;justify-content:space-between;align-items:center;padding:7px 8px 7px 12px;border-bottom:1px solid var(--ln);font:500 15px Fredoka,system-ui,sans-serif}
+#chx{padding:2px 8px;font-size:18px;line-height:1.2;background:transparent;color:var(--mu);box-shadow:none}
 #msgs{height:170px;overflow-y:auto;padding:8px 10px;font-size:14px;word-break:break-word}
 #msgs div{margin:2px 0}
 #msgs b{font-family:Fredoka,system-ui,sans-serif;font-weight:500;margin-right:6px}
@@ -118,6 +134,23 @@ button:disabled{opacity:.4;cursor:not-allowed}
 #kl .lr:last-child{border-bottom:0}
 #kl p{margin:4px 0}
 .kb{padding:5px 14px;font-size:14px;background:#ff6b6b;color:#2a0909;box-shadow:none}
+#bgp{display:none;position:absolute;top:58px;right:12px;z-index:7;width:252px;background:rgba(33,47,61,.97);border:1px solid var(--ln);border-radius:12px;padding:12px 14px}
+#bgp.on{display:block}
+.bgh{font:500 15px Fredoka,system-ui,sans-serif}
+#sw{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 12px}
+#sw button{height:40px;padding:0;border-radius:10px;border:2px solid var(--ln);box-shadow:none}
+#sw button.on{border-color:var(--ac)}
+#bgp .r2{display:flex;gap:8px;align-items:center}
+.cl{display:flex;align-items:center;gap:8px;flex:1;font-size:14px;color:var(--mu)}
+#bgc{width:100%;max-width:120px;height:34px;padding:0;border:1px solid var(--ln);border-radius:8px;background:none;cursor:pointer}
+#game.light #hud{background:none}
+#game.light #hud button.alt{background:rgba(22,32,42,.88)}
+@media(max-width:620px){#bgp{top:96px}}
+#cnt{padding:0;border:0;background:none;height:26px;accent-color:var(--ac);cursor:pointer}
+.pcs{display:flex;gap:12px;align-items:center}
+#cnum{width:96px;flex:none;text-align:center;font-weight:700}
+#qbar{height:6px;border-radius:3px;margin:2px 10px 0 8px;background:var(--ln)}
+.pcsl{display:flex;justify-content:space-between;color:var(--mu);font-size:13px;margin:4px 4px 0}
 #win{display:none;position:absolute;inset:0;background:rgba(10,16,22,.8);align-items:center;justify-content:center;text-align:center}
 #win.on{display:flex}
 #win h1{color:var(--ok);font-size:52px}
@@ -136,7 +169,8 @@ button:disabled{opacity:.4;cursor:not-allowed}
     <div class="dv"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></div>
     <label class="lbl" for="jc">Bir Lobiye Katıl</label>
     <div class="row"><input id="jc" maxlength="5" placeholder="LOBİ KODU" autocomplete="off" style="text-transform:uppercase"><button id="jn" class="alt">Katıl <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button></div>
-    <div id="err"></div>
+    <div id="err" role="status" aria-live="polite"></div>
+    <p style="text-align:center;margin:12px 0 0"><a href="#" id="nettest" style="color:var(--mu);font-size:14px">Bağlantı sorunu mu var? Testi çalıştır</a></p>
   </div></div>
 </section>
 
@@ -152,7 +186,9 @@ button:disabled{opacity:.4;cursor:not-allowed}
       <input type="file" id="file" accept="image/*">
       <img id="prev" alt="">
       <h2>Parça sayısı</h2>
-      <select id="cnt"></select>
+      <div class="pcs"><input type="range" id="cnt" min="0" max="1000" value="400" aria-label="Parça sayısı"><input type="number" id="cnum" min="12" max="3000" inputmode="numeric" aria-label="Parça sayısı"></div>
+      <div id="qbar"></div>
+      <div class="pcsl"><span>12</span><span>3000</span></div>
       <p id="info"></p>
       <div class="row"><button id="go" disabled>Başlat</button></div>
     </div>
@@ -167,13 +203,18 @@ button:disabled{opacity:.4;cursor:not-allowed}
     <span class="sp"></span>
     <button id="orgbtn" class="alt" title="Orijinal görsel" aria-label="Orijinal görseli göster" style="padding:6px 10px;line-height:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5.5 4.5 12 4.5 22.5 12 22.5 12 18.5 19.5 12 19.5 1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3.2"/></svg></button>
     <span id="prog"></span>
+    <button id="bgbtn" class="alt hb" title="Arka planı değiştir" aria-label="Arka planı değiştir"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".6" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".6" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".6" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".6" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg></button>
     <button id="inv" class="alt hb" title="Davet linkini kopyala" aria-label="Davet linkini kopyala"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
     <button id="kick" class="alt hb" title="Oyuncuları yönet" aria-label="Oyuncuları yönet" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M17 8l5 5"/><path d="M22 8l-5 5"/></svg></button>
     <button id="shuf" class="alt hb" title="Yerine konmamış parçaları karıştır" aria-label="Yerine konmamış parçaları karıştır" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg></button>
     <button id="again" class="alt" style="display:none">Yeni puzzle</button>
   </div>
-  <div id="chat"><div id="msgs"></div><input id="cin" maxlength="200" placeholder="Mesaj yaz, Enter ile gönder" autocomplete="off"></div>
+  <button id="chbtn" title="Sohbet" aria-label="Sohbeti aç"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg><span id="chb"></span></button>
+  <div id="chat"><div id="chh"><span>Sohbet</span><button id="chx" aria-label="Sohbeti kapat">×</button></div><div id="msgs"></div><input id="cin" maxlength="200" placeholder="Mesaj yaz, Enter ile gönder" autocomplete="off"></div>
   <div id="orig"><img id="origimg" alt="Orijinal görsel"></div>
+  <div id="bgp"><div class="bgh">Arka plan</div><div id="sw"></div>
+    <div class="r2"><label class="cl">Renk <input type="color" id="bgc" value="#16202a"></label></div>
+  </div>
   <div id="lb"><div id="lbhd"><span>Sıralama</span><b id="lbt"></b></div><div id="lbl"></div></div>
   <div id="zoom"><button id="zi">+</button><button id="zo">−</button><button id="zf">⌂</button></div>
   <div id="win"><div><h1>Puzzle tamamlandı!</h1><p id="wt"></p><div id="wr"></div><div class="row"><button id="wview" class="alt">Tahtaya bak</button><button id="wnew">Yeni puzzle</button></div><p id="wwait">Lider yeni puzzle başlatınca lobiye döneceksin.</p></div></div>
@@ -192,7 +233,10 @@ button:disabled{opacity:.4;cursor:not-allowed}
 <script>
 const $=s=>document.querySelector(s);
 const COLORS=['#ff6b6b','#4dd4ac','#ffc857','#6ea8fe','#d58cff','#ff9f5a','#7bdff2','#b8e986','#ff8fb1','#c4b5fd'];
-const COUNTS=[100,300,500,1000,2000,3000];
+const PMIN=12,PMAX=3000;
+let pieceN=300;
+const toN=t=>Math.round(PMIN*Math.pow(PMAX/PMIN,t/1000));
+const toT=n=>Math.round(1000*Math.log(n/PMIN)/Math.log(PMAX/PMIN));
 let peer,isHost=false,me={id:null,name:''},conns=[],hostConn=null,players={},code='',nextColor=1,lastStart=null,pendingImg=null,pendingDims=null;
 const known={};
 let img,N,cols,rows,W,H,cw,ch,m,pad,P=[],G={},order=[],holders={},cursors={},ready=false,queue=[],t0=0;
@@ -200,7 +244,50 @@ let cam={x:0,y:0,s:1},drag=null,pan=null,lastCur=0,lastMove=0,dpr=1;
 const cv=$('#cv'),ctx=cv.getContext('2d');
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id))}
-function err(t){$('#err').textContent=t}
+const NI={
+  ok:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>',
+  bad:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5"/><circle cx="12" cy="16.2" r=".7" fill="currentColor"/></svg>',
+  info:'<span class="spin"></span>'
+};
+function err(t,k){
+  const box=$('#err');box.textContent='';
+  if(!t)return;
+  const kind=k===true?'ok':(k==='info'?'info':'bad');
+  const d=document.createElement('div');d.className='nt nt-'+kind;
+  const i=document.createElement('span');i.className='ni';i.innerHTML=NI[kind];
+  const x=document.createElement('span');x.textContent=t;
+  d.append(i,x);box.appendChild(d);
+}
+/* WebRTC: several STUN servers plus TURN relays as fallback for strict networks.
+   Replace the TURN entry with your own credentials (e.g. a free metered.ca account) if relays are unreliable. */
+const ICE={iceServers:[
+  {urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'},
+  {urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp','turns:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}
+]};
+function friendly(e){
+  const t=e&&e.type;
+  if(t==='peer-unavailable')return 'Lobi bulunamadı. Kodu kontrol et.';
+  if(['network','server-error','socket-error','socket-closed'].includes(t))return 'Bağlantı sunucusuna ulaşılamadı. İnternetini, VPN ve güvenlik duvarını kontrol et.';
+  if(t==='webrtc')return 'Tarayıcı bağlantıyı engelledi (WebRTC). VPN ve gizlilik eklentilerini kapatıp dene.';
+  return 'Bağlantı hatası: '+t;
+}
+async function netTest(){
+  err('Test ediliyor… (yaklaşık 8 saniye)','info');
+  if(!window.RTCPeerConnection){err('Tarayıcın WebRTC kullanamıyor. Gizlilik eklentisini/ayarını kapat ya da başka bir tarayıcı dene.');return}
+  let sig=true;
+  try{const c=new AbortController();setTimeout(()=>c.abort(),5000);await fetch('https://0.peerjs.com/peerjs/id',{signal:c.signal,cache:'no-store'})}catch(e){sig=false}
+  const types=new Set();
+  try{
+    const pc=new RTCPeerConnection(ICE);pc.createDataChannel('t');
+    pc.onicecandidate=e=>{if(e.candidate){const m=/ typ (\w+)/.exec(e.candidate.candidate);if(m)types.add(m[1])}};
+    await pc.setLocalDescription(await pc.createOffer());
+    await new Promise(r=>setTimeout(r,6000));pc.close();
+  }catch(e){}
+  const srf=types.has('srflx'),rel=types.has('relay');
+  if(!sig)err('Bağlantı sunucusuna (PeerJS) ulaşılamıyor. İnternet sağlayıcın, DNS ayarın ya da VPN engelliyor olabilir.');
+  else if(!srf&&!rel)err('Ağın doğrudan bağlantıyı engelliyor (UDP kapalı olabilir). VPN\'i kapat, mobil veriye ya da başka bir ağa geçip tekrar dene.');
+  else err('Sunucu: erişilebilir',true);
+}
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function chip(p){const s=document.createElement('span');s.className='chip';s.style.setProperty('--c',p.color);s.textContent=p.name;return s}
 function grid(w,h,n){const c=Math.sqrt(w*h/n);return[Math.max(2,Math.round(w/c)),Math.max(2,Math.round(h/c))]}
@@ -224,27 +311,28 @@ try{$('#name').value=localStorage.getItem('pz-name')||''}catch(e){}
 const qs=new URLSearchParams(location.search).get('oda');
 if(qs)$('#jc').value=qs.toUpperCase();
 function getName(){const n=$('#name').value.trim()||'Oyuncu'+Math.floor(Math.random()*90+10);try{localStorage.setItem('pz-name',n)}catch(e){}return n.slice(0,16)}
+$('#nettest').onclick=e=>{e.preventDefault();netTest()};
 $('#mk').onclick=()=>{me.name=getName();err('');hostRoom()};
-$('#jn').onclick=()=>{const c=$('#jc').value.trim().toUpperCase();if(!c){err('Lobi kodunu yaz.');return}me.name=getName();err('Bağlanılıyor…');joinRoom(c)};
+$('#jn').onclick=()=>{const c=$('#jc').value.trim().toUpperCase();if(!c){err('Lobi kodunu yaz.');return}me.name=getName();err('Bağlanılıyor…','info');joinRoom(c)};
 
 /* ---------- network ---------- */
 function rndCode(){const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<5;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
 function hostRoom(){
-  code=rndCode();peer=new Peer('pzl-'+code);
+  code=rndCode();peer=new Peer('pzl-'+code,{config:ICE});peer.on('disconnected',()=>{try{peer.reconnect()}catch(e){}});
   peer.on('open',id=>{isHost=true;me.id=id;players[id]={name:me.name,color:COLORS[0]};enterLobby()});
   peer.on('connection',onConn);
-  peer.on('error',e=>{if(e.type==='unavailable-id')hostRoom();else err('Bağlantı hatası: '+e.type)});
+  peer.on('error',e=>{if(e.type==='unavailable-id')hostRoom();else err(friendly(e))});
 }
 function joinRoom(c){
-  code=c;peer=new Peer();
-  const to=setTimeout(()=>err('Lobiye ulaşılamadı. Kodu kontrol et.'),12000);
+  code=c;peer=new Peer(undefined,{config:ICE});peer.on('disconnected',()=>{try{peer.reconnect()}catch(e){}});
+  const to=setTimeout(()=>err('Lobiye bağlanılamadı. Kodu kontrol et. Hâlâ olmuyorsa ağın (VPN, mobil veri, güvenlik duvarı) bağlantıyı engelliyor olabilir. Aşağıdaki testi çalıştır.'),20000);
   peer.on('open',id=>{
     me.id=id;hostConn=peer.connect('pzl-'+c,{reliable:true});
     hostConn.on('open',()=>{clearTimeout(to);err('');hostConn.send({t:'hello',name:me.name});enterLobby()});
     hostConn.on('data',recv);
     hostConn.on('close',()=>{if(kicked)return;ask({title:'Lobi kapandı',text:'Lobi lideri oyundan ayrıldı.',ok:'Ana ekrana dön',cancel:false}).then(()=>location.reload())});
   });
-  peer.on('error',e=>{clearTimeout(to);err(e.type==='peer-unavailable'?'Lobi bulunamadı.':'Bağlantı hatası: '+e.type)});
+  peer.on('error',e=>{clearTimeout(to);err(friendly(e))});
 }
 function onConn(conn){
   conns.push(conn);
@@ -305,7 +393,7 @@ function snapshot(){return order.map(g=>[g,Math.round(G[g].x*10)/10,Math.round(G
 function enterLobby(){
   show('lobby');$('#code').innerHTML=[...code].map(c=>`<span>${c}</span>`).join('');
   $('#hostbox').style.display=isHost?'block':'none';$('#wait').style.display=isHost?'none':'block';
-  $('#cnt').innerHTML=COUNTS.map(n=>`<option value="${n}">${n} parça</option>`).join('');
+  $('#cnt').value=toT(pieceN);$('#cnum').value=pieceN;upInfo();
   renderPlayers();
 }
 function renderPlayers(){
@@ -317,7 +405,7 @@ $('#cp').onclick=()=>{const l=location.origin+location.pathname+'?oda='+code;nav
 $('#file').onchange=e=>{
   const f=e.target.files[0];if(!f)return;
   const im=new Image();im.onload=()=>{
-    const k=Math.min(1,2400/Math.max(im.width,im.height));
+    const k=Math.min(1,3200/Math.max(im.width,im.height));
     const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
     c.getContext('2d').drawImage(im,0,0,c.width,c.height);
     pendingImg=c.toDataURL('image/jpeg',.85);pendingDims=[c.width,c.height];
@@ -325,10 +413,20 @@ $('#file').onchange=e=>{
   };
   im.src=URL.createObjectURL(f);
 };
-function upInfo(){if(!pendingDims)return;const[c,r]=grid(pendingDims[0],pendingDims[1],+$('#cnt').value);$('#info').textContent=`Görsele göre ${c}×${r} = ${c*r} parça olacak.`}
-$('#cnt').onchange=upInfo;
+const QT=[[160,'Harika','#4dd4ac'],[110,'Çok iyi','#8fe06a'],[75,'İyi','#d6e060'],[50,'Orta','#ffc857'],[35,'Kötü','#ff9f5a'],[0,'Çok kötü','#ff6b6b']];
+function quality(w,h,n){const[c,r]=grid(w,h,n);const px=Math.sqrt(w*h/(c*r));return{c,r,px,q:QT.find(t=>px>=t[0])}}
+function upInfo(){
+  if(!pendingDims){$('#info').textContent=`Parça sayısı: ${pieceN}`;return}
+  const[w,h]=pendingDims,k=quality(w,h,pieceN);
+  $('#info').innerHTML=`Puzzle <b>${k.c*k.r}</b> parça olacak (${k.c} × ${k.r}), kalite: <b style="color:${k.q[2]}">${k.q[1]}</b> <span style="font-size:13px">(parça başına ~${Math.round(k.px)} piksel)</span>`;
+  const st=[];for(let i=0;i<=50;i++)st.push(`${quality(w,h,toN(i*20)).q[2]} ${i*2}%`);
+  $('#qbar').style.background=`linear-gradient(90deg,${st.join(',')})`;
+}
+$('#cnt').oninput=()=>{pieceN=toN(+$('#cnt').value);$('#cnum').value=pieceN;upInfo()};
+$('#cnum').oninput=()=>{let v=Math.round(+$('#cnum').value);if(!v)return;v=Math.min(PMAX,Math.max(PMIN,v));pieceN=v;$('#cnt').value=toT(v);upInfo()};
+$('#cnum').onchange=()=>{$('#cnum').value=pieceN};
 $('#go').onclick=()=>{
-  lastStart={t:'start',img:pendingImg,n:+$('#cnt').value,seed:Math.floor(Math.random()*1e9),t0:Date.now()};
+  lastStart={t:'start',img:pendingImg,n:pieceN,seed:Math.floor(Math.random()*1e9),t0:Date.now()};
   send({...lastStart});startGame(lastStart);
 };
 $('#again').onclick=$('#wnew').onclick=()=>{lastStart=null;send({t:'lobby'});backToLobby()};
@@ -572,14 +670,56 @@ $('#shuf').onclick=async()=>{
   send(msg);gameMsg(msg);
 };
 
+/* ---------- background picker ---------- */
+let bgLight=false;
+const BGS=[
+ {id:'gece',n:'Gece',b:'radial-gradient(ellipse at 50% 40%,#22344a 0%,#141e2a 55%,#0d131a 100%)'},
+ {id:'siyah',n:'Siyah',b:'#0a0c10'},
+ {id:'kece',n:'Yeşil keçe',b:'radial-gradient(ellipse at 50% 40%,#2f7452 0%,#1c4331 60%,#0f271c 100%)'},
+ {id:'bordo',n:'Bordo',b:'radial-gradient(ellipse at 50% 40%,#6b2a3b 0%,#3a1521 60%,#1f0b12 100%)'},
+ {id:'gun',n:'Gün batımı',b:'linear-gradient(160deg,#2b1b4a 0%,#8a3a5a 60%,#e08a4a 100%)'},
+ {id:'ahsap',n:'Ahşap',b:'repeating-linear-gradient(90deg,#8a6642 0 46px,#7f5c3a 46px 92px)'},
+ {id:'gri',n:'Gri',b:'#3a4048'},
+ {id:'acik',n:'Açık',b:'#e9e5da',light:true}
+];
+let bgState={k:'preset',id:'gece'};
+function lum(hex){const n=parseInt(hex.slice(1),16);return(.299*(n>>16)+.587*((n>>8)&255)+.114*(n&255))/255}
+function applyBg(st,save){
+  bgState=st;const g=$('#game');
+  if(st.k==='preset'){const p=BGS.find(b=>b.id===st.id)||BGS[0];g.style.background=p.b;bgLight=!!p.light}
+  else{g.style.background=st.v;bgLight=lum(st.v)>.6}
+  g.classList.toggle('light',bgLight);
+  document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',st.k==='preset'&&b.dataset.id===st.id));
+  if(save){try{localStorage.setItem('pz-bg',JSON.stringify(st))}catch(e){}}
+}
+BGS.forEach(p=>{
+  const b=document.createElement('button');b.dataset.id=p.id;b.title=p.n;b.setAttribute('aria-label',p.n);b.style.background=p.b;
+  b.onclick=()=>applyBg({k:'preset',id:p.id},true);$('#sw').appendChild(b);
+});
+$('#bgc').oninput=e=>applyBg({k:'color',v:e.target.value},true);
+$('#bgbtn').onclick=()=>$('#bgp').classList.toggle('on');
+document.addEventListener('pointerdown',e=>{
+  if($('#bgp').classList.contains('on')&&!e.target.closest('#bgp')&&!e.target.closest('#bgbtn'))$('#bgp').classList.remove('on');
+});
+try{const sv=JSON.parse(localStorage.getItem('pz-bg')||'null');if(sv&&(sv.k==='preset'||sv.k==='color'))applyBg(sv,false);else applyBg(bgState,true)}catch(e){applyBg(bgState,false)}
+
 /* ---------- chat and original image ---------- */
+let unread=0;
+function chatOpen(v){
+  const c=$('#chat');c.classList.toggle('open',v);$('#chbtn').classList.toggle('on',v);
+  if(v){unread=0;$('#chb').style.display='none';$('#msgs').scrollTop=$('#msgs').scrollHeight;$('#cin').focus()}
+}
+$('#chbtn').onclick=()=>chatOpen(!$('#chat').classList.contains('open'));
+$('#chx').onclick=()=>chatOpen(false);
 function addChat(id,text){
   const p=players[id]||{name:'?',color:'#aaa'},box=$('#msgs'),d=document.createElement('div'),b=document.createElement('b');
   b.textContent=p.name;b.style.color=p.color;d.appendChild(b);d.appendChild(document.createTextNode(String(text).slice(0,200)));
   box.appendChild(d);while(box.children.length>100)box.removeChild(box.firstChild);box.scrollTop=box.scrollHeight;
+  if(!$('#chat').classList.contains('open')&&id!==me.id){unread++;const bd=$('#chb');bd.textContent=unread>9?'9+':unread;bd.style.display='block'}
 }
 $('#cin').addEventListener('keydown',e=>{
   e.stopPropagation();
+  if(e.key==='Escape'){chatOpen(false);return}
   if(e.key!=='Enter')return;
   const t=e.target.value.trim();if(!t)return;
   e.target.value='';send({t:'chat',text:t});addChat(me.id,t);
@@ -593,9 +733,9 @@ function draw(){
   if(!ready)return;
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);
   const k=dpr*cam.s;ctx.setTransform(k,0,0,k,dpr*cam.x,dpr*cam.y);
-  ctx.fillStyle='rgba(255,255,255,.05)';ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='rgba(255,255,255,.28)';ctx.lineWidth=2/cam.s;ctx.setLineDash([10/cam.s,8/cam.s]);ctx.strokeRect(0,0,W,H);ctx.setLineDash([]);
-  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1/cam.s;ctx.beginPath();for(let c=1;c<cols;c++){ctx.moveTo(c*cw,0);ctx.lineTo(c*cw,H)}for(let r=1;r<rows;r++){ctx.moveTo(0,r*ch);ctx.lineTo(W,r*ch)}ctx.stroke();
+  const ink=bgLight?'0,0,0':'255,255,255';ctx.fillStyle=`rgba(${ink},.06)`;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle=`rgba(${ink},.3)`;ctx.lineWidth=2/cam.s;ctx.setLineDash([10/cam.s,8/cam.s]);ctx.strokeRect(0,0,W,H);ctx.setLineDash([]);
+  ctx.strokeStyle=`rgba(${ink},.08)`;ctx.lineWidth=1/cam.s;ctx.beginPath();for(let c=1;c<cols;c++){ctx.moveTo(c*cw,0);ctx.lineTo(c*cw,H)}for(let r=1;r<rows;r++){ctx.moveTo(0,r*ch);ctx.lineTo(W,r*ch)}ctx.stroke();
   const vx0=-cam.x/cam.s,vy0=-cam.y/cam.s,vx1=vx0+innerWidth/cam.s,vy1=vy0+innerHeight/cam.s;
   for(const gid of order){
     const g=G[gid],h=holders[gid];
