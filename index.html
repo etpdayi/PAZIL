@@ -75,7 +75,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){.spin,.nt{animation:none}}
 .chip{display:inline-flex;align-items:center;gap:7px;padding:4px 11px;border-radius:99px;background:var(--bg);border:1px solid var(--ln);margin:3px 4px 3px 0;font-size:14px}
 .chip:before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c,#888)}
-#code{display:flex;gap:8px;margin:6px 0 4px}
+#code{display:flex;gap:8px;margin:6px 0 4px;user-select:all;-webkit-user-select:all}
 #code span{width:46px;height:54px;display:flex;align-items:center;justify-content:center;border-radius:11px;background:linear-gradient(160deg,#ffd93d,#ff8b21);color:#2a1700;font:700 30px Fredoka,sans-serif}
 #prev{display:none;width:100%;max-height:220px;object-fit:contain;border-radius:10px;margin-top:10px;background:var(--bg)}
 #game{padding:0;position:relative;background:radial-gradient(ellipse at 50% 40%,#22344a 0%,#141e2a 55%,#0d131a 100%)}
@@ -178,6 +178,16 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .sw span:last-child{transition:color .3s}
 .sw input:not(:checked)~span:last-child{color:var(--mu)}
 @media(prefers-reduced-motion:reduce){#cnt::-webkit-slider-thumb,#cnt::-moz-range-thumb,#cbub,#cnum,.trk:after{transition:none;animation:none}}
+#drop{display:flex;align-items:center;gap:14px;padding:14px 16px;border:2px dashed var(--ln);border-radius:14px;background:var(--bg);cursor:pointer;transition:border-color .2s,background .2s,transform .25s cubic-bezier(.3,1.7,.5,1)}
+#drop:hover,#drop:focus-visible,#drop.over{border-color:var(--ac);background:rgba(255,200,87,.07);outline:none}
+#drop.over{transform:scale(1.025)}
+#drop.has{border-style:solid}
+.di{width:46px;height:46px;border-radius:13px;background:linear-gradient(160deg,#ffd93d,#ff8b21);color:#2a1700;display:flex;align-items:center;justify-content:center;flex:none;transition:transform .35s cubic-bezier(.3,1.7,.5,1)}
+#drop:hover .di,#drop.over .di{transform:rotate(-8deg) scale(1.1)}
+.dt{display:flex;flex-direction:column;min-width:0}
+.dt b{font:500 17px Fredoka,system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dt small{color:var(--mu);font-size:13px}
+@media(prefers-reduced-motion:reduce){#drop,.di{transition:none}}
 #win{display:none;position:absolute;inset:0;background:rgba(10,16,22,.8);align-items:center;justify-content:center;text-align:center}
 #win.on{display:flex}
 #win h1{color:var(--ok);font-size:52px}
@@ -210,7 +220,8 @@ button:disabled{opacity:.4;cursor:not-allowed}
     <div id="plist"></div>
     <div id="hostbox" style="display:none">
       <h2>Puzzle görseli</h2>
-      <input type="file" id="file" accept="image/*">
+      <label id="drop" for="file" tabindex="0"><span class="di"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V5"/><path d="M7.5 9.5L12 5l4.5 4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></span><span class="dt"><b id="dtt">Görsel seç</b><small id="dts">ya da buraya sürükle bırak</small></span></label>
+      <input type="file" id="file" accept="image/*" hidden>
       <img id="prev" alt="">
       <h2>Parça sayısı</h2>
       <div class="pcs"><div id="pcw"><output id="cbub">300</output><input type="range" id="cnt" min="0" max="1000" value="400" aria-label="Parça sayısı"><div class="pcsl"><span>12</span><span>3000</span></div></div><input type="number" id="cnum" min="12" max="3000" inputmode="numeric" aria-label="Parça sayısı"></div>
@@ -423,23 +434,35 @@ function enterLobby(){
   $('#cnt').value=toT(pieceN);$('#cnum').value=pieceN;setSlider(false);upInfo();
   renderPlayers();
 }
+document.addEventListener('copy',e=>{
+  const sel=getSelection();
+  if(code&&sel&&sel.rangeCount&&$('#code').contains(sel.anchorNode)){e.clipboardData.setData('text/plain',code);e.preventDefault()}
+});
 function renderPlayers(){
   if($('#kmodal').classList.contains('on'))renderKick();
   for(const id in players)known[id]=players[id];
   const box=$('#plist');box.textContent='';Object.values(players).forEach(p=>box.appendChild(chip(p)));
 }
 $('#cp').onclick=()=>{const l=location.origin+location.pathname+'?oda='+code;navigator.clipboard&&navigator.clipboard.writeText(l);$('#cp').textContent='Kopyalandı'; setTimeout(()=>$('#cp').textContent='Davet linkini kopyala',1500)};
-$('#file').onchange=e=>{
-  const f=e.target.files[0];if(!f)return;
+function loadFile(f){
+  if(!f)return;
+  if(!/^image\//.test(f.type)){$('#dts').textContent='Bu dosya bir görsel değil, başka bir tane seç';return}
   const im=new Image();im.onload=()=>{
     const k=Math.min(1,3200/Math.max(im.width,im.height));
     const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
     c.getContext('2d').drawImage(im,0,0,c.width,c.height);
     pendingImg=c.toDataURL('image/jpeg',.85);pendingDims=[c.width,c.height];
     $('#prev').src=pendingImg;$('#prev').style.display='block';$('#go').disabled=false;upInfo();
+    $('#dtt').textContent=f.name;$('#dts').textContent='Değiştirmek için tıkla ya da yeni görseli sürükle';$('#drop').classList.add('has');
   };
   im.src=URL.createObjectURL(f);
-};
+}
+$('#file').onchange=e=>{loadFile(e.target.files[0]);e.target.value=''};
+const dz=$('#drop');
+dz.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#file').click()}});
+['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over')}));
+dz.addEventListener('drop',e=>loadFile(e.dataTransfer.files[0]));
 const QT=[[160,'Harika','#4dd4ac'],[110,'Çok iyi','#8fe06a'],[75,'İyi','#d6e060'],[50,'Orta','#ffc857'],[35,'Kötü','#ff9f5a'],[0,'Çok kötü','#ff6b6b']];
 function quality(w,h,n){const[c,r]=grid(w,h,n);const px=Math.sqrt(w*h/(c*r));return{c,r,px,q:QT.find(t=>px>=t[0])}}
 const NI2={...NI,warn:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.8" r=".7" fill="currentColor"/></svg>'};
