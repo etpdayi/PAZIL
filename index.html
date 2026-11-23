@@ -188,6 +188,9 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .dt b{font:500 17px Fredoka,system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dt small{color:var(--mu);font-size:13px}
 @media(prefers-reduced-motion:reduce){#drop,.di{transition:none}}
+#reco{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:70;display:none;width:max-content;max-width:min(92vw,460px)}
+#reco.on{display:block}
+#reco .nt{align-items:center;background:#2b2a22;box-shadow:0 8px 30px rgba(0,0,0,.45)}
 #win{display:none;position:absolute;inset:0;background:rgba(10,16,22,.8);align-items:center;justify-content:center;text-align:center}
 #win.on{display:flex}
 #win h1{color:var(--ok);font-size:52px}
@@ -230,6 +233,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
       <div class="row"><button id="go" disabled>Başlat</button></div>
     </div>
     <p id="wait">Lobi lideri görseli seçiyor…</p>
+    <div class="row"><button id="leave" class="alt">Lobiden ayrıl</button></div>
   </div></div>
 </section>
 
@@ -245,6 +249,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
     <button id="kick" class="alt hb" title="Oyuncuları yönet" aria-label="Oyuncuları yönet" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M17 8l5 5"/><path d="M22 8l-5 5"/></svg></button>
     <button id="shuf" class="alt hb" title="Yerine konmamış parçaları karıştır" aria-label="Yerine konmamış parçaları karıştır" style="display:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg></button>
     <button id="again" class="alt" style="display:none">Yeni puzzle</button>
+    <button id="leaveg" class="alt hb" title="Lobiden ayrıl" aria-label="Lobiden ayrıl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>
   </div>
   <button id="chbtn" title="Sohbet" aria-label="Sohbeti aç"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg><span id="chb"></span></button>
   <div id="chat"><div id="chh"><span>Sohbet</span><button id="chx" aria-label="Sohbeti kapat">×</button></div><div id="msgs"></div><input id="cin" maxlength="200" placeholder="Mesaj yaz, Enter ile gönder" autocomplete="off"></div>
@@ -262,6 +267,8 @@ button:disabled{opacity:.4;cursor:not-allowed}
   <div class="row"><button id="kclose" class="alt">Kapat</button></div>
 </div></div></div>
 
+<div id="reco" role="status"></div>
+
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="wrap"><div class="card">
   <div id="mt"></div><p id="mp"></p>
   <div class="row"><button id="mno" class="alt"></button><button id="mok"></button></div>
@@ -274,6 +281,7 @@ const PMIN=12,PMAX=3000;
 let pieceN=300;
 const toN=t=>Math.round(PMIN*Math.pow(PMAX/PMIN,t/1000));
 const toT=n=>Math.round(1000*Math.log(n/PMIN)/Math.log(PMAX/PMIN));
+let colorOf={},pendingHello=[],leaving=false,joinTries=0,hostTries=0;
 let peer,isHost=false,me={id:null,name:''},conns=[],hostConn=null,players={},code='',nextColor=1,lastStart=null,pendingImg=null,pendingDims=null;
 const known={};
 let showGrid=true;
@@ -355,31 +363,101 @@ $('#jn').onclick=()=>{const c=$('#jc').value.trim().toUpperCase();if(!c){err('Lo
 
 /* ---------- network ---------- */
 function rndCode(){const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<5;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
-function hostRoom(){
-  code=rndCode();peer=new Peer('pzl-'+code,{config:ICE});peer.on('disconnected',()=>{try{peer.reconnect()}catch(e){}});
-  peer.on('open',id=>{isHost=true;me.id=id;players[id]={name:me.name,color:COLORS[0]};enterLobby()});
-  peer.on('connection',onConn);
-  peer.on('error',e=>{if(e.type==='unavailable-id')hostRoom();else err(friendly(e))});
+/* ---------- session persistence (refresh keeps you in the lobby) ---------- */
+function pid(){try{let v=localStorage.getItem('pz-pid');if(!v){v='pzp-'+Math.random().toString(36).slice(2,12);localStorage.setItem('pz-pid',v)}return v}catch(e){return null}}
+function saveSess(){try{localStorage.setItem('pz-sess',JSON.stringify({role:isHost?'host':'client',code,name:me.name,ts:Date.now()}))}catch(e){}}
+function clearSess(){try{localStorage.removeItem('pz-sess');localStorage.removeItem('pz-host');localStorage.removeItem('pz-himg')}catch(e){}}
+function getSess(){try{const v=JSON.parse(localStorage.getItem('pz-sess')||'null');if(v&&v.code&&Date.now()-v.ts<6*3600e3)return v}catch(e){}return null}
+function loadHostSaved(c){try{const d=JSON.parse(localStorage.getItem('pz-host')||'null');return d&&d.code===c?d:null}catch(e){return null}}
+function saveHostNow(){
+  if(!isHost||!me.id||leaving)return;
+  try{
+    const d={code,nextColor,colorOf,known,pieceN,grid:$('#gridopt').checked};
+    if(lastStart&&ready){d.start={n:lastStart.n,seed:lastStart.seed,t0:lastStart.t0,grid:lastStart.grid};d.state=snapshot();d.own=ownSnap()}
+    localStorage.setItem('pz-host',JSON.stringify(d));saveSess();
+  }catch(e){}
 }
-function joinRoom(c){
-  code=c;peer=new Peer(undefined,{config:ICE});peer.on('disconnected',()=>{try{peer.reconnect()}catch(e){}});
-  const to=setTimeout(()=>err('Lobiye bağlanılamadı. Kodu kontrol et. Hâlâ olmuyorsa ağın (VPN, mobil veri, güvenlik duvarı) bağlantıyı engelliyor olabilir. Aşağıdaki testi çalıştır.'),20000);
+let saveT;function saveHost(){if(!isHost)return;clearTimeout(saveT);saveT=setTimeout(saveHostNow,1200)}
+addEventListener('pagehide',saveHostNow);
+
+function showReco(t){
+  const box=$('#reco');box.textContent='';
+  const d=document.createElement('div');d.className='nt nt-info';
+  const i=document.createElement('span');i.className='ni';i.innerHTML='<span class="spin"></span>';
+  const x=document.createElement('span');x.textContent=t;
+  const b=document.createElement('button');b.className='alt';b.textContent='Vazgeç';b.style.cssText='padding:3px 12px;font-size:13px;margin-left:8px;flex:none;box-shadow:none';
+  b.onclick=()=>{leaving=true;clearSess();location.reload()};
+  d.append(i,x,b);box.appendChild(d);box.classList.add('on');
+}
+function hideReco(){$('#reco').classList.remove('on')}
+
+function rndCode(){const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<5;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
+function hostRoom(resume){
+  const saved=resume?loadHostSaved(resume):null;
+  code=resume||rndCode();
+  peer=new Peer('pzl-'+code,{config:ICE});peer.on('disconnected',()=>{try{peer.reconnect()}catch(e){}});
+  peer.on('open',id=>{
+    isHost=true;me.id=id;hideReco();err('');
+    if(saved){nextColor=saved.nextColor||1;Object.assign(colorOf,saved.colorOf||{});Object.assign(known,saved.known||{});if(saved.pieceN)pieceN=saved.pieceN}
+    colorOf[id]=colorOf[id]||COLORS[0];
+    players[id]={name:me.name,color:colorOf[id]};
+    saveSess();enterLobby();
+    if(saved){$('#gridopt').checked=saved.grid!==false}
+    if(saved&&saved.start&&saved.state){
+      let im=null;try{im=localStorage.getItem('pz-himg')}catch(e){}
+      if(im){lastStart={t:'start',img:im,...saved.start};startGame({...lastStart,state:saved.state,own:saved.own})}
+    }
+  });
+  peer.on('connection',onConn);
+  peer.on('error',e=>{
+    if(e.type==='unavailable-id'){
+      try{peer.destroy()}catch(_){}
+      if(resume&&hostTries<10){hostTries++;showReco('Lobi yeniden açılıyor…');setTimeout(()=>hostRoom(resume),2000);return}
+      if(resume){hideReco();clearSess();err('Lobi kodu şu an kullanımda. Yeni bir lobi açabilirsin.');return}
+      hostRoom();return;
+    }
+    err(friendly(e));
+  });
+}
+function retryJoin(){
+  if(kicked||leaving)return;
+  joinTries++;
+  if(joinTries>40){hideReco();clearSess();ask({title:'Lobi kapandı',text:'Lobiye tekrar bağlanılamadı.',ok:'Ana ekrana dön',cancel:false}).then(()=>location.reload());return}
+  showReco('Bağlantı koptu, yeniden bağlanılıyor…');
+  setTimeout(()=>joinRoom(code,true),2500);
+}
+function joinRoom(c,resume,usePid=true){
+  code=c;try{peer&&peer.destroy()}catch(e){}
+  const stable=usePid?pid():null;
+  peer=stable?new Peer(stable,{config:ICE}):new Peer(undefined,{config:ICE});
+  peer.on('disconnected',()=>{try{peer.reconnect()}catch(e){}});
+  const to=setTimeout(()=>{if(resume||joinTries>0)retryJoin();else err('Lobiye bağlanılamadı. Kodu kontrol et. Hâlâ olmuyorsa ağın (VPN, mobil veri, güvenlik duvarı) bağlantıyı engelliyor olabilir. Aşağıdaki testi çalıştır.')},resume?10000:20000);
   peer.on('open',id=>{
     me.id=id;hostConn=peer.connect('pzl-'+c,{reliable:true});
-    hostConn.on('open',()=>{clearTimeout(to);err('');hostConn.send({t:'hello',name:me.name});enterLobby()});
+    hostConn.on('open',()=>{
+      clearTimeout(to);err('');joinTries=0;hideReco();
+      hostConn.send({t:'hello',name:me.name});saveSess();
+      if(!ready)enterLobby();
+    });
     hostConn.on('data',recv);
-    hostConn.on('close',()=>{if(kicked)return;ask({title:'Lobi kapandı',text:'Lobi lideri oyundan ayrıldı.',ok:'Ana ekrana dön',cancel:false}).then(()=>location.reload())});
+    hostConn.on('close',()=>{if(kicked||leaving)return;retryJoin()});
   });
-  peer.on('error',e=>{clearTimeout(to);err(friendly(e))});
+  peer.on('error',e=>{
+    clearTimeout(to);
+    if(e.type==='unavailable-id'&&usePid){joinRoom(c,resume,false);return}
+    if(resume||joinTries>0){retryJoin();return}
+    err(friendly(e));
+  });
 }
 function onConn(conn){
   conns.push(conn);
   conn.on('data',msg=>{
     if(!conns.includes(conn))return;
     if(msg.t==='hello'){
-      players[conn.peer]={name:String(msg.name||'Oyuncu').slice(0,16),color:COLORS[nextColor++%COLORS.length]};
+      colorOf[conn.peer]=colorOf[conn.peer]||COLORS[nextColor++%COLORS.length];
+      players[conn.peer]={name:String(msg.name||'Oyuncu').slice(0,16),color:colorOf[conn.peer]};
       bcast({t:'players',p:players});
-      if(lastStart)conn.send({...lastStart,state:snapshot(),own:ownSnap()});
+      if(lastStart){if(ready)conn.send({...lastStart,state:snapshot(),own:ownSnap()});else pendingHello.push(conn)}
       return;
     }
     msg.from=conn.peer;
@@ -409,7 +487,7 @@ function send(msg){
 let kicked=false;
 function recv(msg){
   if(msg.t==='kicked'){
-    kicked=true;
+    kicked=true;clearSess();
     ask({title:'Lobiden çıkarıldın',text:'Lobi lideri seni oyundan çıkardı.',ok:'Ana ekrana dön',cancel:false}).then(()=>location.reload());
     return;
   }
@@ -439,6 +517,7 @@ document.addEventListener('copy',e=>{
   if(code&&sel&&sel.rangeCount&&$('#code').contains(sel.anchorNode)){e.clipboardData.setData('text/plain',code);e.preventDefault()}
 });
 function renderPlayers(){
+  saveHost();
   if($('#kmodal').classList.contains('on'))renderKick();
   for(const id in players)known[id]=players[id];
   const box=$('#plist');box.textContent='';Object.values(players).forEach(p=>box.appendChild(chip(p)));
@@ -492,11 +571,12 @@ $('#cnum').oninput=()=>{let v=Math.round(+$('#cnum').value);if(!v)return;v=Math.
 $('#cnum').onchange=()=>{$('#cnum').value=pieceN};
 $('#go').onclick=()=>{
   lastStart={t:'start',img:pendingImg,n:pieceN,seed:Math.floor(Math.random()*1e9),t0:Date.now(),grid:$('#gridopt').checked};
+  try{localStorage.setItem('pz-himg',pendingImg)}catch(e){try{localStorage.removeItem('pz-himg')}catch(_){}}
   send({...lastStart});startGame(lastStart);
 };
 $('#again').onclick=$('#wnew').onclick=()=>{lastStart=null;send({t:'lobby'});backToLobby()};
 $('#wview').onclick=()=>$('#win').classList.remove('on');
-function backToLobby(){ready=false;$('#win').classList.remove('on');enterLobby()}
+function backToLobby(){ready=false;$('#win').classList.remove('on');enterLobby();saveHost()}
 
 /* ---------- puzzle build ---------- */
 const SEG=[[[.2,0],[.3,0],[.38,0]],[[.41,0],[.34,.08],[.38,.13]],[[.40,.20],[.60,.20],[.62,.13]],[[.66,.08],[.59,0],[.62,0]],[[.7,0],[.85,0],[1,0]]];
@@ -533,6 +613,7 @@ async function startGame(msg){
     msg.own.ids.forEach((id,i)=>{if(msg.own.nm[i]&&!known[id])known[id]=msg.own.nm[i]});
   }
   resize();fit();ready=true;queue.forEach(gameMsg);queue=[];checkWin();
+  if(isHost){pendingHello.splice(0).forEach(c=>c.open&&c.send({...lastStart,state:snapshot(),own:ownSnap()}));saveHost()}
 }
 
 /* ---------- game logic ---------- */
@@ -591,7 +672,7 @@ function gameMsg(msg){
   else if(msg.t==='drop'){
     const A=G[g];if(!A)return;A.x=msg.x;A.y=msg.y;(msg.m||[]).forEach(q=>absorb(g,q));delete holders[g];afterDrop(g);credit(g,msg.from);checkWin();
   }else if(msg.t==='shuffle'){
-    drag=null;pan=null;reshuffle(msg.seed);
+    drag=null;pan=null;reshuffle(msg.seed);saveHost();
   }else if(msg.t==='cur'){
     const c=cursors[msg.from];if(c){c.x=msg.x;c.y=msg.y;c.at=performance.now()}else cursors[msg.from]={x:msg.x,y:msg.y,dx:msg.x,dy:msg.y,at:performance.now()};
   }
@@ -678,6 +759,7 @@ function isLocked(g){return g.x===0&&g.y===0}
 function afterDrop(gid){
   const A=G[gid];
   if(A&&isLocked(A)){const i=order.indexOf(gid);if(i>0){order.splice(i,1);order.unshift(gid)}flash[gid]=performance.now()}
+  saveHost();
 }
 function pick(w){
   for(let i=order.length-1;i>=0;i--){
@@ -874,6 +956,22 @@ function draw(){
 })();
 
 requestAnimationFrame(draw);
+
+/* ---------- leave and auto resume ---------- */
+async function leaveLobby(){
+  const ok=await ask({title:'Lobiden ayrılmak istiyor musun?',text:isHost?'Lobi kapanacak ve oyun bitecek.':'Sonradan lobi koduyla tekrar katılabilirsin.',ok:'Ayrıl',cancel:'Vazgeç'});
+  if(!ok)return;
+  leaving=true;clearSess();try{conns.forEach(c=>c.close())}catch(e){}try{peer&&peer.destroy()}catch(e){}
+  location.reload();
+}
+$('#leave').onclick=$('#leaveg').onclick=leaveLobby;
+(function(){
+  const sess=getSess();if(!sess)return;
+  if(qs&&qs.toUpperCase()!==sess.code){clearSess();return}
+  me.name=sess.name||'Oyuncu';$('#name').value=me.name;
+  if(sess.role==='host'){showReco('Lobi geri yükleniyor…');hostRoom(sess.code)}
+  else{joinTries=1;showReco('Lobiye yeniden bağlanılıyor…');joinRoom(sess.code,true)}
+})();
 </script>
 </body>
 </html>
