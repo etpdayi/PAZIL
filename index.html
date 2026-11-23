@@ -146,11 +146,38 @@ button:disabled{opacity:.4;cursor:not-allowed}
 #game.light #hud{background:none}
 #game.light #hud button.alt{background:rgba(22,32,42,.88)}
 @media(max-width:620px){#bgp{top:96px}}
-#cnt{padding:0;border:0;background:none;height:26px;accent-color:var(--ac);cursor:pointer}
-.pcs{display:flex;gap:12px;align-items:center}
-#cnum{width:96px;flex:none;text-align:center;font-weight:700}
-#qbar{height:6px;border-radius:3px;margin:2px 10px 0 8px;background:var(--ln)}
-.pcsl{display:flex;justify-content:space-between;color:var(--mu);font-size:13px;margin:4px 4px 0}
+.pcs{display:flex;gap:14px;align-items:flex-end}
+#pcw{position:relative;flex:1;min-width:0;padding-top:30px;--pf:.4}
+#cnt{-webkit-appearance:none;appearance:none;display:block;width:100%;height:34px;margin:0;padding:0;border:0;background:transparent;cursor:grab;outline:none}
+#cnt:active{cursor:grabbing}
+#cnt::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(var(--ln),var(--ln)) right/calc(100% - 17px - (100% - 34px) * var(--pf)) 100% no-repeat,var(--qg,linear-gradient(90deg,#ffd93d,#ff8b21))}
+#cnt::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(var(--ln),var(--ln)) right/calc(100% - 17px - (100% - 34px) * var(--pf)) 100% no-repeat,var(--qg,linear-gradient(90deg,#ffd93d,#ff8b21))}
+#cnt::-webkit-slider-thumb{-webkit-appearance:none;width:34px;height:34px;margin-top:-12px;border:0;border-radius:0;background:var(--thumb) center/contain no-repeat;filter:drop-shadow(0 3px 3px rgba(0,0,0,.45));transition:transform .3s cubic-bezier(.3,1.7,.5,1)}
+#cnt::-moz-range-thumb{width:34px;height:34px;border:0;border-radius:0;background:var(--thumb) center/contain no-repeat;filter:drop-shadow(0 3px 3px rgba(0,0,0,.45));transition:transform .3s cubic-bezier(.3,1.7,.5,1)}
+#cnt:hover::-webkit-slider-thumb{transform:scale(1.12) rotate(-6deg)}
+#cnt:hover::-moz-range-thumb{transform:scale(1.12) rotate(-6deg)}
+#pcw.drag #cnt::-webkit-slider-thumb,#cnt:active::-webkit-slider-thumb{transform:scale(1.3) rotate(-14deg)}
+#pcw.drag #cnt::-moz-range-thumb,#cnt:active::-moz-range-thumb{transform:scale(1.3) rotate(-14deg)}
+#cnt:focus-visible::-webkit-slider-thumb{outline:2px solid var(--ac);outline-offset:2px;border-radius:8px}
+#cbub{position:absolute;top:0;left:calc(17px + (100% - 34px) * var(--pf));transform:translateX(-50%);min-width:48px;padding:2px 10px;border-radius:9px;background:linear-gradient(160deg,#ffd93d,#ff9a2a);color:#2a1700;font:700 14px Fredoka,system-ui,sans-serif;text-align:center;pointer-events:none;transition:transform .3s cubic-bezier(.3,1.7,.5,1)}
+#cbub:after{content:"";position:absolute;left:50%;bottom:-4px;width:9px;height:9px;background:#ffa52c;transform:translateX(-50%) rotate(45deg);border-radius:2px;z-index:-1}
+#pcw.drag #cbub{transform:translateX(-50%) translateY(-5px) scale(1.18)}
+.pcsl{display:flex;justify-content:space-between;color:var(--mu);font-size:13px;margin:2px 8px 0}
+#cnum{width:104px;flex:none;text-align:center;font:700 22px Fredoka,system-ui,sans-serif;padding:9px 6px}
+#cnum.bump{animation:bump .35s cubic-bezier(.3,1.7,.5,1)}
+@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.14);border-color:var(--ac);color:var(--ac)}100%{transform:scale(1)}}
+.sw{position:relative;display:flex;align-items:center;gap:14px;margin-top:16px;cursor:pointer;user-select:none}
+.sw input{position:absolute;opacity:0;width:0;height:0;padding:0;border:0}
+.trk{width:58px;height:32px;border-radius:16px;background:var(--bg);border:1px solid var(--ln);position:relative;flex:none;transition:background .3s,border-color .3s}
+.trk:after{content:"";position:absolute;top:-3px;left:0;width:38px;height:38px;background:var(--thumb) center/contain no-repeat;filter:grayscale(1) brightness(.85) drop-shadow(0 2px 2px rgba(0,0,0,.4));transition:transform .45s cubic-bezier(.3,1.6,.5,1),filter .3s}
+.sw input:checked+.trk{background:linear-gradient(90deg,rgba(255,217,61,.28),rgba(255,139,33,.28));border-color:var(--ac)}
+.sw input:checked+.trk:after{transform:translateX(22px) rotate(180deg);filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
+.sw:active .trk:after{transform:scale(.9)}
+.sw input:checked:active+.trk:after{transform:translateX(22px) rotate(180deg) scale(.9)}
+.sw input:focus-visible+.trk{outline:2px solid var(--ac);outline-offset:3px}
+.sw span:last-child{transition:color .3s}
+.sw input:not(:checked)~span:last-child{color:var(--mu)}
+@media(prefers-reduced-motion:reduce){#cnt::-webkit-slider-thumb,#cnt::-moz-range-thumb,#cbub,#cnum,.trk:after{transition:none;animation:none}}
 #win{display:none;position:absolute;inset:0;background:rgba(10,16,22,.8);align-items:center;justify-content:center;text-align:center}
 #win.on{display:flex}
 #win h1{color:var(--ok);font-size:52px}
@@ -186,10 +213,9 @@ button:disabled{opacity:.4;cursor:not-allowed}
       <input type="file" id="file" accept="image/*">
       <img id="prev" alt="">
       <h2>Parça sayısı</h2>
-      <div class="pcs"><input type="range" id="cnt" min="0" max="1000" value="400" aria-label="Parça sayısı"><input type="number" id="cnum" min="12" max="3000" inputmode="numeric" aria-label="Parça sayısı"></div>
-      <div id="qbar"></div>
-      <div class="pcsl"><span>12</span><span>3000</span></div>
-      <p id="info"></p>
+      <div class="pcs"><div id="pcw"><output id="cbub">300</output><input type="range" id="cnt" min="0" max="1000" value="400" aria-label="Parça sayısı"><div class="pcsl"><span>12</span><span>3000</span></div></div><input type="number" id="cnum" min="12" max="3000" inputmode="numeric" aria-label="Parça sayısı"></div>
+      <div id="info"></div>
+      <label class="sw"><input type="checkbox" id="gridopt" checked><span class="trk"></span><span>Kılavuz çizgileri (ızgara)</span></label>
       <div class="row"><button id="go" disabled>Başlat</button></div>
     </div>
     <p id="wait">Lobi lideri görseli seçiyor…</p>
@@ -239,6 +265,7 @@ const toN=t=>Math.round(PMIN*Math.pow(PMAX/PMIN,t/1000));
 const toT=n=>Math.round(1000*Math.log(n/PMIN)/Math.log(PMAX/PMIN));
 let peer,isHost=false,me={id:null,name:''},conns=[],hostConn=null,players={},code='',nextColor=1,lastStart=null,pendingImg=null,pendingDims=null;
 const known={};
+let showGrid=true;
 let img,N,cols,rows,W,H,cw,ch,m,pad,P=[],G={},order=[],holders={},cursors={},ready=false,queue=[],t0=0;
 let cam={x:0,y:0,s:1},drag=null,pan=null,lastCur=0,lastMove=0,dpr=1;
 const cv=$('#cv'),ctx=cv.getContext('2d');
@@ -393,7 +420,7 @@ function snapshot(){return order.map(g=>[g,Math.round(G[g].x*10)/10,Math.round(G
 function enterLobby(){
   show('lobby');$('#code').innerHTML=[...code].map(c=>`<span>${c}</span>`).join('');
   $('#hostbox').style.display=isHost?'block':'none';$('#wait').style.display=isHost?'none':'block';
-  $('#cnt').value=toT(pieceN);$('#cnum').value=pieceN;upInfo();
+  $('#cnt').value=toT(pieceN);$('#cnum').value=pieceN;setSlider(false);upInfo();
   renderPlayers();
 }
 function renderPlayers(){
@@ -415,18 +442,33 @@ $('#file').onchange=e=>{
 };
 const QT=[[160,'Harika','#4dd4ac'],[110,'Çok iyi','#8fe06a'],[75,'İyi','#d6e060'],[50,'Orta','#ffc857'],[35,'Kötü','#ff9f5a'],[0,'Çok kötü','#ff6b6b']];
 function quality(w,h,n){const[c,r]=grid(w,h,n);const px=Math.sqrt(w*h/(c*r));return{c,r,px,q:QT.find(t=>px>=t[0])}}
-function upInfo(){
-  if(!pendingDims){$('#info').textContent=`Parça sayısı: ${pieceN}`;return}
-  const[w,h]=pendingDims,k=quality(w,h,pieceN);
-  $('#info').innerHTML=`Puzzle <b>${k.c*k.r}</b> parça olacak (${k.c} × ${k.r}), kalite: <b style="color:${k.q[2]}">${k.q[1]}</b> <span style="font-size:13px">(parça başına ~${Math.round(k.px)} piksel)</span>`;
-  const st=[];for(let i=0;i<=50;i++)st.push(`${quality(w,h,toN(i*20)).q[2]} ${i*2}%`);
-  $('#qbar').style.background=`linear-gradient(90deg,${st.join(',')})`;
+const NI2={...NI,warn:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.8" r=".7" fill="currentColor"/></svg>'};
+function infoBox(kind,html){
+  const box=$('#info');box.textContent='';
+  const d=document.createElement('div');d.className='nt nt-'+(kind==='warn'?'info':kind);
+  const i=document.createElement('span');i.className='ni';i.innerHTML=NI2[kind];
+  const x=document.createElement('span');x.innerHTML=html;
+  d.append(i,x);box.appendChild(d);
 }
-$('#cnt').oninput=()=>{pieceN=toN(+$('#cnt').value);$('#cnum').value=pieceN;upInfo()};
-$('#cnum').oninput=()=>{let v=Math.round(+$('#cnum').value);if(!v)return;v=Math.min(PMAX,Math.max(PMIN,v));pieceN=v;$('#cnt').value=toT(v);upInfo()};
+function upInfo(){
+  if(!pendingDims){
+    $('#pcw').style.removeProperty('--qg');
+    const b=$('#info');b.textContent='';const p=document.createElement('p');p.style.margin='10px 0 0';p.textContent='Parça sayısı: '+pieceN;b.appendChild(p);return;
+  }
+  const[w,h]=pendingDims,k=quality(w,h,pieceN),ti=QT.indexOf(k.q);
+  const st=[];for(let i=0;i<=50;i++)st.push(`${quality(w,h,toN(i*20)).q[2]} calc(17px + (100% - 34px) * ${(i/50).toFixed(2)})`);
+  $('#pcw').style.setProperty('--qg',`linear-gradient(90deg,${st.join(',')})`);
+  infoBox(ti<=1?'ok':ti<=3?'warn':'bad',`Puzzle <b>${k.c*k.r}</b> parça olacak (${k.c} × ${k.r}), kalite: <b style="color:${k.q[2]}">${k.q[1]}</b> <span style="font-size:13px;opacity:.85">(parça başına ~${Math.round(k.px)} piksel)</span>`);
+}
+function bump(el){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}
+function setSlider(b){$('#pcw').style.setProperty('--pf',(+$('#cnt').value/1000).toFixed(4));$('#cbub').textContent=pieceN;if(b)bump($('#cnum'))}
+$('#cnt').addEventListener('pointerdown',()=>$('#pcw').classList.add('drag'));
+['pointerup','pointercancel','blur'].forEach(ev=>addEventListener(ev,()=>$('#pcw').classList.remove('drag')));
+$('#cnt').oninput=()=>{pieceN=toN(+$('#cnt').value);$('#cnum').value=pieceN;setSlider(true);upInfo()};
+$('#cnum').oninput=()=>{let v=Math.round(+$('#cnum').value);if(!v)return;v=Math.min(PMAX,Math.max(PMIN,v));pieceN=v;$('#cnt').value=toT(v);setSlider(false);upInfo()};
 $('#cnum').onchange=()=>{$('#cnum').value=pieceN};
 $('#go').onclick=()=>{
-  lastStart={t:'start',img:pendingImg,n:pieceN,seed:Math.floor(Math.random()*1e9),t0:Date.now()};
+  lastStart={t:'start',img:pendingImg,n:pieceN,seed:Math.floor(Math.random()*1e9),t0:Date.now(),grid:$('#gridopt').checked};
   send({...lastStart});startGame(lastStart);
 };
 $('#again').onclick=$('#wnew').onclick=()=>{lastStart=null;send({t:'lobby'});backToLobby()};
@@ -454,7 +496,7 @@ async function startGame(msg){
   ready=false;queue=[];holders={};cursors={};show('game');
   renderCode();$('#again').style.display=isHost?'inline-block':'none';$('#shuf').style.display=isHost?'inline-block':'none';$('#kick').style.display=isHost?'inline-block':'none';$('#win').classList.remove('on');
   img=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.src=msg.img});
-  N=msg.n;t0=msg.t0;W=img.width;H=img.height;
+  N=msg.n;t0=msg.t0;showGrid=msg.grid!==false;W=img.width;H=img.height;
   [cols,rows]=grid(W,H,N);cw=W/cols;ch=H/rows;m=Math.min(cw,ch);pad=Math.ceil(m*.26);
   const rnd=mulberry(msg.seed),hs=[],vs=[];
   for(let r=0;r<=rows;r++){hs[r]=[];for(let c=0;c<cols;c++)hs[r][c]=(r===0||r===rows)?0:(rnd()<.5?1:-1)}
@@ -735,7 +777,7 @@ function draw(){
   const k=dpr*cam.s;ctx.setTransform(k,0,0,k,dpr*cam.x,dpr*cam.y);
   const ink=bgLight?'0,0,0':'255,255,255';ctx.fillStyle=`rgba(${ink},.06)`;ctx.fillRect(0,0,W,H);
   ctx.strokeStyle=`rgba(${ink},.3)`;ctx.lineWidth=2/cam.s;ctx.setLineDash([10/cam.s,8/cam.s]);ctx.strokeRect(0,0,W,H);ctx.setLineDash([]);
-  ctx.strokeStyle=`rgba(${ink},.08)`;ctx.lineWidth=1/cam.s;ctx.beginPath();for(let c=1;c<cols;c++){ctx.moveTo(c*cw,0);ctx.lineTo(c*cw,H)}for(let r=1;r<rows;r++){ctx.moveTo(0,r*ch);ctx.lineTo(W,r*ch)}ctx.stroke();
+  if(showGrid){ctx.strokeStyle=`rgba(${ink},.08)`;ctx.lineWidth=1/cam.s;ctx.beginPath();for(let c=1;c<cols;c++){ctx.moveTo(c*cw,0);ctx.lineTo(c*cw,H)}for(let r=1;r<rows;r++){ctx.moveTo(0,r*ch);ctx.lineTo(W,r*ch)}ctx.stroke()}
   const vx0=-cam.x/cam.s,vy0=-cam.y/cam.s,vx1=vx0+innerWidth/cam.s,vy1=vy0+innerHeight/cam.s;
   for(const gid of order){
     const g=G[gid],h=holders[gid];
@@ -802,6 +844,8 @@ function draw(){
   const items=[[-3,4,260,-18,[-1,1,1,-1]],[74,-5,320,12,[-1,-1,1,1]],[-5,64,300,22,[1,-1,-1,1]],[80,66,280,-24,[-1,1,-1,1]],[42,86,220,8,[1,1,-1,-1]],[58,22,180,-10,[-1,1,1,1]]];
   $('#deco').innerHTML=items.map(([x,y,sz,r,t],i)=>`<svg style="left:${x}%;top:${y}%;width:${sz}px;height:${sz}px;transform:rotate(${r}deg);fill:${cl[i]};fill-opacity:.06;stroke:${cl[i]};stroke-opacity:.22" viewBox="-30 -30 160 160"><path d="${pd(100,t)}"/></svg>`).join('');
   const fv=document.createElement('link');fv.rel='icon';fv.href='data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 -30 160 160"><path fill="#ffb92e" d="${pd(100,[-1,1,1,-1])}"/></svg>`);document.head.appendChild(fv);
+  const tsvg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 -30 160 160"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#ffd93d"/><stop offset="1" stop-color="#ff8b21"/></linearGradient></defs><path d="${pd(100,[-1,1,1,-1])}" fill="url(#g)" stroke="#7a3a00" stroke-opacity=".5" stroke-width="3"/></svg>`;
+  document.documentElement.style.setProperty('--thumb',`url("data:image/svg+xml,${encodeURIComponent(tsvg)}")`);
   const NM=['Pazılcı','Köşeci','Kenarcı','Yapbozcu','Tamamcı','Parçacı','Birleştirici','Çerçeveci'];
   $('#dice').onclick=()=>{$('#name').value=NM[Math.floor(Math.random()*NM.length)]+Math.floor(Math.random()*90+10)};
 })();
